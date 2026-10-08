@@ -8,7 +8,7 @@ The current release, **1.0-alpha-1**, adds new features that have not been exten
 
 - Hotbar key labels with outlined text and pressed-state feedback.
 - Short names for common modifiers and mouse buttons, with automatic text fitting for long labels.
-- A brief green flash when attacking and switching hotbar slots within one tick.
+- A brief green flash when attacking and switching hotbar slots within one tick (attribute-swapping) feedback on this by good players will be EXTREMELY appreciated.
 - Configurable horizontal/vertical offsets, text scale, and visibility of unpressed keys.
 - Settings saved in `config/hudkeys.json`, with an optional Mod Menu configuration screen.
 
