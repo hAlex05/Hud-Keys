@@ -1,39 +1,60 @@
 # Hud Keys
 
-A small Fabric mod that shows keybinds on-screen (MOBA-style visible key binds near the hotbar).
-This is my first mod and was only made because I couldn't find any mods that did the same thing. All improvement recommendations are welcome!
-(I know it isn't perfect and it has lots of room for improvement)
-
+A client-side Fabric mod that shows the nine hotbar keybinds and their pressed states beside the hotbar.
 
 ## Features
-- Displays key presses and their names on the HUD
 
-## Planned Features
-- Add customization options
+- Hotbar key labels with outlined text and pressed-state feedback.
+- Short names for common modifiers and mouse buttons, with automatic text fitting for long labels.
+- A brief green flash when attacking and switching hotbar slots within one tick.
+- Configurable horizontal/vertical offsets, text scale, and visibility of unpressed keys.
+- Settings saved in `config/hudkeys.json`, with an optional Mod Menu configuration screen.
 
-## Modrinth
-https://modrinth.com/mod/hud-keys
+## Supported Minecraft versions
+
+| Minecraft | Java | Release JAR |
+| --- | --- | --- |
+| 1.21.11 | 21 or newer | `hudk-mc1.21.11-1.0-alpha-1.jar` |
+| 26.1 | 25 or newer | `hudk-mc26.1-1.0-alpha-1.jar` |
+| 26.1.1 | 25 or newer | `hudk-mc26.1.1-1.0-alpha-1.jar` |
+| 26.1.2 | 25 or newer | `hudk-mc26.1.2-1.0-alpha-1.jar` |
+| 26.2 | 25 or newer | `hudk-mc26.2-1.0-alpha-1.jar` |
+| 26.3 | 25 or newer | `hudk-mc26.3-1.0-alpha-1.jar` |
+
+Use the JAR for your exact Minecraft version. These are the stable releases from 1.21.11 through 26.3; snapshots and future releases are not covered.
 
 ## Installation
-1. Install Fabric Loader (matching the mod's Minecraft target) and Fabric API.
-2. Drop the mod JAR into your `mods/` folder.
-3. Launch Minecraft with the Fabric profile.
 
-## Build (from source)
-- Clone the repo, then run:
-  - Linux/macOS: `./gradlew build`
-  - Windows: `gradlew.bat build`
-- The built JAR will be in `build/libs/`. Place that JAR into `mods/`. (Careful not the file that ends with -sources.jar)
+1. Install Fabric Loader **0.19.5 or newer** for your Minecraft version.
+2. Install [Fabric API](https://modrinth.com/mod/fabric-api) and [Cloth Config](https://modrinth.com/mod/cloth-config), using files compatible with your Minecraft version.
+3. Put the matching Hud Keys JAR in your `mods/` folder.
+4. Optionally install [Mod Menu](https://modrinth.com/mod/modmenu) to edit settings in-game. Otherwise edit `config/hudkeys.json` while Minecraft is closed.
+5. Launch Minecraft using the Fabric profile.
 
-## Supported versions
-- Built for Fabric and Minecraft 1.21.11. Ensure your Fabric Loader and Fabric API versions are compatible.
+Do not install multiple Hud Keys JARs or a `-sources.jar` file.
 
-## Issues & Contributing
-- Bug reports and feature requests: use Issues on the GitHub repository.
-- Contributions welcome — fork, make changes, and open a PR.
+## Build from source
+
+Use JDK 25 to build all targets:
+
+```sh
+./gradlew build
+python3 scripts/verify_release.py
+```
+
+On Windows use `gradlew.bat build`. Each target's JAR is written to `versions/<minecraft-version>/build/libs/`.
+To build one target, run `./gradlew :26.3:build` (replace `26.3` as needed).
+
+## Releases and changelog
+
+Downloads: [Modrinth](https://modrinth.com/mod/hud-keys) and [GitHub releases](https://github.com/AlexTGG/Hud-Keys/releases).
+See [CHANGELOG.md](CHANGELOG.md) for changes compared with 0.1 and 0.1.1.
+
+## Issues and contributions
+
+Report bugs or suggest improvements through [GitHub Issues](https://github.com/AlexTGG/Hud-Keys/issues).
+Contributions are welcome.
 
 ## License
-GPL-3.0-or-later — see the repository license for details.
 
-## Contact
-Repository: [AlexTGG/Hud-Keys](https://github.com/AlexTGG/Hud-Keys)
+GPL-3.0-or-later. See [LICENSE](LICENSE).

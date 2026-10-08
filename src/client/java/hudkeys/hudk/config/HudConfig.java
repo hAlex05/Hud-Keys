@@ -42,7 +42,7 @@ public class HudConfig {
             instance = new HudConfig();
             save();
         } else {
-            if (Float.isNaN(instance.scale) || instance.scale <= 0.05f) {
+            if (!Float.isFinite(instance.scale) || instance.scale < 0.1f || instance.scale > 3.0f) {
                 instance.scale = 0.6f;
             }
         }

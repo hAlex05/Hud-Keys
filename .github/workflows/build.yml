@@ -23,8 +23,11 @@ jobs:
         run: chmod +x ./gradlew
       - name: build
         run: ./gradlew build
+      - name: verify release jars
+        run: python3 scripts/verify_release.py
       - name: capture build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts
-          path: build/libs/
+          path: versions/*/build/libs/*.jar
+          if-no-files-found: error

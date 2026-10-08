@@ -5,7 +5,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 //? if <=1.21.11 {
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +13,9 @@ import net.minecraft.client.gui.GuiGraphics;
 *///?}
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
+
+import java.util.Arrays;
+import java.util.Locale;
 
 public class HudKeysClient implements ClientModInitializer {
 
@@ -33,8 +35,15 @@ public class HudKeysClient implements ClientModInitializer {
 		);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (client.player == null)
+			if (client.player == null) {
+				currentTick = 0;
+				lastAttackTick = -10;
+				lastSwapTick = -10;
+				previousSlot = -1;
+				wasAttackPressed = false;
+				Arrays.fill(greenFlashTicks, 0);
 				return;
+			}
 			currentTick++;
 
 			boolean isAttackPressed = client.options.keyAttack.isDown();
@@ -144,7 +153,7 @@ public class HudKeysClient implements ClientModInitializer {
 
 	private String getFormattedKeyName(KeyMapping key) {
 		String label = key.getTranslatedKeyMessage().getString();
-		String lower = label.toLowerCase();
+		String lower = label.toLowerCase(Locale.ROOT);
 		return switch (lower) {
 			case "left shift", "lshift" -> "LS";
 			case "right shift", "rshift" -> "RS";

@@ -21,7 +21,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.archives_base_name
+	archivesName = "${project.archives_base_name}-mc${project.minecraft_version}"
 }
 
 repositories {
@@ -64,9 +64,13 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "java_version", project.minecraft_version.startsWith("1.21") ? 21 : 25
+	inputs.property "loader_version", project.loader_version
+	inputs.property "cloth_config_version", project.cloth_config_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand inputs.properties
 	}
 }
 
@@ -90,7 +94,7 @@ java {
 jar {
 	inputs.property "archivesName", project.base.archivesName
 
-	from("LICENSE") {
+	from(rootProject.file("LICENSE")) {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
