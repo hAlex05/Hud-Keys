@@ -1,0 +1,82 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+
+tasks.register('verifyRelease') {
+    group = 'verification'
+    description = 'Verify distributable JARs and generate the release manifest.'
+    doLast {
+        def readProperties = { File source ->
+            def props = new Properties()
+            source.withInputStream { props.load(it) }
+            props
+        }
+        def version = readProperties(file('gradle.properties')).getProperty('mod_version')
+        def targets = (file('settings.gradle').text =~ /versions (.+)/)[0][1]
+        def artifacts = []
+        (targets =~ /"([\d.]+)"/).each { match ->
+            def target = match[1]
+            def props = readProperties(file("versions/${target}/gradle.properties"))
+            def archiveTarget = props.getProperty('archive_minecraft_version', target)
+            def jar = file("versions/${target}/build/libs/hudk-mc${archiveTarget}-${version}.jar")
+            def javaVersion = target.startsWith('1.21') ? 21 : 25
+            def supported = props.getProperty('supported_minecraft_versions', target).split(',').toList()
+            new ZipFile(jar).withCloseable { archive ->
+                def bytes = { String name ->
+                    def entry = archive.getEntry(name)
+                    assert entry != null : "Missing ${name} in ${jar}"
+                    archive.getInputStream(entry).withCloseable { it.bytes }
+                }
+                archive.entries().each { entry ->
+                    if (!entry.directory) {
+                        def crc = new java.util.zip.CRC32()
+                        crc.update(bytes(entry.name))
+                        assert crc.value == entry.crc : "Corrupt entry ${entry.name} in ${jar}"
+                    }
+                }
+                def metadata = new JsonSlurper().parse(bytes('fabric.mod.json'))
+                assert metadata.id == 'hudk'
+                assert metadata.version == version
+                assert metadata.environment == 'client'
+                assert metadata.depends.minecraft == (props.containsKey('supported_minecraft_versions') ? supported : target)
+                assert metadata.depends.java == ">=${javaVersion}"
+                assert metadata.depends.fabricloader == ">=${props.getProperty('loader_version')}"
+                assert metadata.depends.'cloth-config' == ">=${props.getProperty('cloth_config_version')}"
+                assert metadata.depends.containsKey('fabric-api')
+                assert metadata.suggests.containsKey('modmenu')
+                assert !metadata.depends.containsKey('modmenu')
+                assert !JsonOutput.toJson(metadata).contains('${') : 'Unexpanded release metadata'
+                assert archive.getEntry(metadata.icon) != null
+                assert archive.entries().any { it.name.startsWith('LICENSE') }
+                metadata.entrypoints.values().flatten().each { entry ->
+                    def path = entry.replace('.', '/') + '.class'
+                    def bytecode = bytes(path)
+                    def major = ((bytecode[6] & 0xff) << 8) | (bytecode[7] & 0xff)
+                    assert major == javaVersion + 44 : "Unexpected bytecode target in ${path}"
+                }
+            }
+            artifacts << [minecraft: target, game_versions: supported,
+                file: relativePath(jar), sha512: MessageDigest.getInstance('SHA-512').digest(jar.bytes).encodeHex().toString()]
+            logger.lifecycle("Verified ${jar.name}: Minecraft ${target}, Java ${javaVersion}, dependencies and entrypoints")
+        }
+        def familyJars = artifacts.collectEntries { [(it.minecraft): file(it.file)] }
+        new ZipFile(familyJars['26.1']).withCloseable { baseline ->
+            ['26.1.1', '26.1.2'].each { target ->
+                new ZipFile(familyJars[target]).withCloseable { patch ->
+                    baseline.entries().findAll { it.name.endsWith('.class') }.each { entry ->
+                        def patchEntry = patch.getEntry(entry.name)
+                        assert patchEntry != null : "Missing class in ${target}: ${entry.name}"
+                        def original = baseline.getInputStream(entry).withCloseable { it.bytes }
+                        def candidate = patch.getInputStream(patchEntry).withCloseable { it.bytes }
+                        assert Arrays.equals(original, candidate) : "26.1-family bytecode differs: ${target} ${entry.name}"
+                    }
+                }
+            }
+        }
+        artifacts = artifacts.findAll { !(it.minecraft in ['26.1.1', '26.1.2']) }
+        def output = file('build/release-manifest.json')
+        output.parentFile.mkdirs()
+        output.text = JsonOutput.prettyPrint(JsonOutput.toJson([version: version, artifacts: artifacts])) + '\n'
+    }
+}

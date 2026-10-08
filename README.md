@@ -37,7 +37,7 @@ Use JDK 25 to build all targets:
 
 ```sh
 ./gradlew build
-python3 scripts/verify_release.py
+./gradlew verifyRelease
 ```
 
 On Windows use `gradlew.bat build`. Each target's JAR is written to `versions/<minecraft-version>/build/libs/`.

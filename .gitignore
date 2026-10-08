@@ -58,3 +58,11 @@ replay_*.log
 *~
 *.swp
 *.swo
+
+# Python tooling does not belong in this Java mod repository
+*.py
+*.py[cod]
+__pycache__/
+.venv/
+venv/
+.pytest_cache/
