@@ -15,13 +15,11 @@ A client-side Fabric mod that shows the nine hotbar keybinds and their pressed s
 | Minecraft | Java | Release JAR |
 | --- | --- | --- |
 | 1.21.11 | 21 or newer | `hudk-mc1.21.11-1.0-alpha-1.jar` |
-| 26.1 | 25 or newer | `hudk-mc26.1-1.0-alpha-1.jar` |
-| 26.1.1 | 25 or newer | `hudk-mc26.1.1-1.0-alpha-1.jar` |
-| 26.1.2 | 25 or newer | `hudk-mc26.1.2-1.0-alpha-1.jar` |
+| 26.1, 26.1.1, 26.1.2 | 25 or newer | `hudk-mc26.1.x-1.0-alpha-1.jar` |
 | 26.2 | 25 or newer | `hudk-mc26.2-1.0-alpha-1.jar` |
 | 26.3 | 25 or newer | `hudk-mc26.3-1.0-alpha-1.jar` |
 
-Use the JAR for your exact Minecraft version. These are the stable releases from 1.21.11 through 26.3; snapshots and future releases are not covered.
+Use the JAR for your Minecraft version; the 26.1 JAR also supports 26.1.1 and 26.1.2. These are the stable releases from 1.21.11 through 26.3; snapshots and future releases are not covered.
 
 ## Installation
 

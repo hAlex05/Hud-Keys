@@ -26,7 +26,8 @@ def verify():
     artifacts = []
     for target in targets:
         props = properties(ROOT / "versions" / target / "gradle.properties")
-        jar = ROOT / "versions" / target / "build/libs" / f"hudk-mc{target}-{version}.jar"
+        archive_target = props.get("archive_minecraft_version", target)
+        jar = ROOT / "versions" / target / "build/libs" / f"hudk-mc{archive_target}-{version}.jar"
         java = 21 if target.startswith("1.21") else 25
         with zipfile.ZipFile(jar) as archive:
             assert archive.testzip() is None, f"Corrupt JAR: {jar}"
@@ -34,7 +35,9 @@ def verify():
             assert metadata["id"] == "hudk"
             assert metadata["version"] == version
             assert metadata["environment"] == "client"
-            assert metadata["depends"]["minecraft"] == target
+            supported = props.get("supported_minecraft_versions", target).split(",")
+            expected = supported if "supported_minecraft_versions" in props else target
+            assert metadata["depends"]["minecraft"] == expected
             assert metadata["depends"]["java"] == f">={java}"
             assert metadata["depends"]["fabricloader"] == f'>={props["loader_version"]}'
             assert metadata["depends"]["cloth-config"] == f'>={props["cloth_config_version"]}'
@@ -51,10 +54,20 @@ def verify():
                     assert major == java + 44, f"Unexpected bytecode target in {path}"
             artifacts.append({
                 "minecraft": target,
+                "game_versions": supported,
                 "file": str(jar.relative_to(ROOT)),
                 "sha512": hashlib.sha512(jar.read_bytes()).hexdigest(),
             })
             print(f"Verified {jar.name}: Minecraft {target}, Java {java}, dependencies and entrypoints")
+    # Keep all patch targets as compile checks, but distribute one 26.1-family JAR.
+    family_jars = {artifact["minecraft"]: ROOT / artifact["file"] for artifact in artifacts}
+    with zipfile.ZipFile(family_jars["26.1"]) as baseline:
+        for target in ("26.1.1", "26.1.2"):
+            with zipfile.ZipFile(family_jars[target]) as patch:
+                for name in baseline.namelist():
+                    if name.endswith(".class"):
+                        assert baseline.read(name) == patch.read(name), f"26.1-family bytecode differs: {target} {name}"
+    artifacts = [a for a in artifacts if a["minecraft"] not in ("26.1.1", "26.1.2")]
     output = ROOT / "build/release-manifest.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({"version": version, "artifacts": artifacts}, indent=2) + "\n")

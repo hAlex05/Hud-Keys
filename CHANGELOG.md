@@ -4,7 +4,7 @@
 
 ### Changes since 0.1.1
 
-- Add separate Fabric builds for Minecraft 26.1, 26.1.1, 26.1.2, 26.2, and 26.3, while retaining 1.21.11 support.
+- Add Fabric support for Minecraft 26.1, 26.1.1, 26.1.2, 26.2, and 26.3, while retaining 1.21.11 support. One 26.1-family JAR covers 26.1 / 26.1.1 / 26.1.2; 26.2 and 26.3 have their own JARs.
 - Add a Mod Menu settings screen for horizontal/vertical offsets, text scale, and showing unpressed keys.
 - Save settings to `config/hudkeys.json` and recover defaults from missing or invalid configuration files. Invalid text scales reset to 0.6.
 - Fit key labels and their outlines inside the hotbar boxes instead of clipping long names to two characters.
@@ -21,7 +21,7 @@ Includes all changes above, plus the long-keybind overflow fix introduced in 0.1
 
 ### Installation
 
-Install the JAR matching your exact Minecraft version, Fabric Loader 0.19.5+, Fabric API, and Cloth Config. Mod Menu is optional and provides the in-game settings screen. Minecraft 26.x requires Java 25; 1.21.11 requires Java 21.
+Install the matching JAR (the 26.1 JAR also supports 26.1.1 and 26.1.2), Fabric Loader 0.19.5+, Fabric API, and Cloth Config. Mod Menu is optional and provides the in-game settings screen. Minecraft 26.x requires Java 25; 1.21.11 requires Java 21.
 
 This is an alpha release. Support covers the six stable Minecraft versions listed above; future versions and snapshots require separate verification.
 

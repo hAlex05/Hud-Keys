@@ -51,6 +51,17 @@ jobs:
           if [[ "$RELEASE_TAG" == *alpha* || "$RELEASE_TAG" == *beta* || "$RELEASE_TAG" == *rc* ]]; then
             args+=(--prerelease)
           fi
-          gh release create "$RELEASE_TAG" "${jars[@]}" build/release-manifest.json \
-            --verify-tag --title "Hud Keys ${RELEASE_TAG#v}" \
-            --notes-file build/RELEASE_NOTES.md "${args[@]}"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${jars[@]}" build/release-manifest.json --clobber
+            gh release edit "$RELEASE_TAG" --notes-file build/RELEASE_NOTES.md
+            for target in 26.1 26.1.1 26.1.2; do
+              obsolete="hudk-mc${target}-${RELEASE_TAG#v}.jar"
+              if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -Fxq "$obsolete"; then
+                gh release delete-asset "$RELEASE_TAG" "$obsolete" --yes
+              fi
+            done
+          else
+            gh release create "$RELEASE_TAG" "${jars[@]}" build/release-manifest.json \
+              --verify-tag --title "Hud Keys ${RELEASE_TAG#v}" \
+              --notes-file build/RELEASE_NOTES.md "${args[@]}"
+          fi
