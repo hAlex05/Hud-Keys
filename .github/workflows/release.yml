@@ -18,6 +18,8 @@ jobs:
         with:
           java-version: '25'
           distribution: 'microsoft'
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
       - name: Build all Minecraft targets
         run: ./gradlew build
       - name: Verify release JARs and prepare changelog
